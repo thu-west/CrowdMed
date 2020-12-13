@@ -1,0 +1,16 @@
+ganache-cli -p 8545 -m "joy rhythm end behave dust flight problem true theory quick destroy short" -d -q --db ~/crowdmed_chain
+
+
+1. admin: 0x9575adb94b6bbd97bda9d418e5fe6c8eb15eb11f
+2. alicezhang (patient): 0xf35ec65ed5448cc096093c1ba213fc52a6037358
+3. doctor0: 0x663a564630f7afdb5a83b4d465b730861041a911
+4. doctor1: 0xdd7b640c1a3d2536fe65e0d608bd8bc685616d9a
+5. research: 0x2d1b74cebff8092e842cb182a67468e4420a2440
+6. doctor2: 0xca8482b81ed82f35511e84dc0bd34a73901ce017
+(6) 0x0e8542eee3020a77cd13dc82cf1d185eb538defc (~100 ETH)
+(7) 0x63ea7fcd87a9644d8f91c531cbe2ba2d83f9ad0c (~100 ETH)
+(8) 0x6dd0071ffc06e465b493ef6af4835739e6dd626a (~100 ETH)
+(9) 0x3d9578dcb2d75415398bbbff95938849c2e36a69 (~100 ETH)
+
+registrar: 0x4feA27839E8334BE828085f6cD2fBEb59344D273
+search: 

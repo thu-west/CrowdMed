@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Create Account</title>
+  </head>
+  <body class="h-100 bg-light">
+    <nav class="navbar navbar-dark bg-secondary sticky-top">
+      <a class="navbar-brand">CrowdMed</a>
+      <a href="/logout"><button class="btn btn-outline-light">Logout</button></a>
+      <!-- Navbar content -->
+    </nav>
+    
+    <div class="container">
+      <div id="main-content" >
+        <h1 class="display-4 my-3">Register</h1>
+        <div v-if="submitSuccess">
+          <p>|| username || has been successfully registered.</p>
+          <button v-on:click="resetForm" class="btn btn-outline-primary">Register another user</button>
+        </div>
+        <div v-else class="mt-3">
+          <form name="register" v-on:submit.prevent="submitForm">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" v-model="username" id="username" class="form-control" required>
+              <small class="text-danger" v-bind:style="{visibility: usernameErr ? 'visible' : 'hidden'}">Username already exists</small>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" v-model="password" id="password" class="form-control" required>
+              <label for="passwordConfirm">Re-type Password</label>
+              <input type="password" v-model="password2" id="passwordConfirm" class="form-control" required>
+              <small class="text-danger" v-bind:style="{visibility: passwordErr ? 'visible' : 'hidden'}">Passwords do not match</small>
+            </div>
+            <div class="form-group">
+              <label for="db">Database URL</label>
+              <input type="text" v-model="localdb" id="db" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="ethAdd">Ethereum Address</label>
+              <input type="text" v-model="ethAddr" id="ethAdd" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="profile">Profile type</label>
+              <select v-model="profileType" class="form-control" id="profile">
+                <option disable value="">Please select one</option>
+                <option value="0">Patient</option>
+                <option value="1">Data Creator</option>
+                <option value="2">Data Consumer</option>
+              </select>
+              <small class="text-danger" v-bind:style="{visibility: profileErr ? 'visible' : 'hidden'}">Please select profile type</small>
+            </div>
+            <div class="form-group">
+              <label for="desc">Description (for data creators and consumers)</label>
+              <textarea rows="2" v-model="description" id="desc" class="form-control">
+              || description ||
+              </textarea>
+            </div>
+            <input type="submit" value="Create account" class="btn btn-outline-primary mt-2 mb-5">
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- app.js is where we will write our JS logic -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/js/vue.js"></script>
+    <script src="/js/register.js" type="module"></script>
+  </body>
+</html>

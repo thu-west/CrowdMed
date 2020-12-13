@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Medical Record - CrowdMed</title>
+  </head>
+  <body>
+    {{#each emr}}
+    <div class="container mt-5">
+      <p class="text-success"><strong>Verified</strong></p>
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th colspan="2">Admission Information</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each this.AdmissionInfo}}
+          <tr>
+            <td>{{@key}}:</td>
+            <td>{{this}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th colspan="2">Prescriptions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each this.Prescriptions}}
+          <tr>
+            <td>
+              <table>
+                <thead class="thead-light">
+                  <tr>
+                    <th colspan="2">Prescription {{@index}}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each this}}
+                  <tr>
+                    <td>{{@key}}:</td>
+                    <td>{{this}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th colspan="2">Patient Information</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each this.PatientInfo}}
+          <tr>
+            <td>{{@key}}:</td>
+            <td>{{this}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <hr>
+    {{/each}}
+    {{#if customFields.length}}
+    <div class="container mt-5">
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th colspan="2">Additional Fields</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each customFields}}
+          <tr>
+            <td>{{this.label}}:</td>
+            <td>{{this.content}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+    <div class="text-center mb-5">Data guide available <a href="https://mimic.physionet.org/about/mimic/">here</a>.</div>
+  </body>
+</html>

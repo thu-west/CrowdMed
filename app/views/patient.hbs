@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://kit.fontawesome.com/ef08e404e5.js" crossorigin="anonymous"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>CrowdMed</title>
+    <style>
+      .btn:hover {
+        background-color: #99caff;
+      }
+
+      .modal
+    </style>
+  </head>
+  <body class="h-100 bg-light">
+    <nav class="navbar navbar-dark sticky-top" style="background-color: #003166;">
+      <a class="navbar-brand ml-5">CrowdMed</a>
+      <div class="navbar-item mr-5">
+        <span class="navbar-text mr-2">
+          Logged in as <span id="userID">{{ username }}</span>
+        </span>
+        <a href="/logout"><button class="btn btn-outline-light mr-3">Logout</button></a>
+      </div>
+    </nav>
+
+    <div id="main-content" class="container">
+      
+      <!-- Dashboard view -->
+      <!-- Updates and alerts -->
+      <div v-if="viewmode == 0">
+        <div class="container my-3">
+          <h1 class="display-4">|| viewTitle ||</h1>
+        </div>
+        <div class="container my-3 text-center">
+          <div v-on:click="switchView(1); loadPermissionGroups();" class="col-2 btn btn-outline-primary" style="height: 150px;">
+            <i class="fas fa-cogs fa-3x text-primary"></i>
+            <h6 class="text-dark mt-4">Review/Update Permission Settings</h6>
+          </div>
+          
+          <div v-on:click="switchView(4); loadAuthUsers()" class="col-2 btn btn-outline-primary" style="height: 150px;">
+            <i class="fas fa-user-md fa-3x text-primary"></i>
+            <h6 class="text-dark mt-4">Review/Update Authorized Viewers</h6>
+          </div>
+          
+          <div v-on:click="switchView(2); loadEMR()" class="col-2 btn btn-outline-primary" style="height: 150px;">
+            <i class="fas fa-notes-medical fa-3x text-primary"></i>
+            <h6 class="text-dark mt-4">Review Medical Records</h6>
+          </div>
+          
+          <button v-on:click="switchView(3)" class="col-2 btn btn-outline-primary" style="height: 150px;">
+            <i class="fas fa-download fa-3x text-primary"></i>
+            <h6 class="text-dark mt-4">View Downloaded Data</h6>
+          </button>
+          
+          <button v-on:click="switchView(5); loadTags()" class="col-2 btn btn-outline-primary" style="height: 150px;">
+            <i class="fas fa-search fa-3x text-primary"></i>
+            <h6 class="text-dark mt-4">Review Tags</h6>
+          </button>
+        </div>
+
+        <div class="container my-4">
+          <div>
+            <h4 class="display-5">Recent Activity</h4>
+          </div>
+
+          <table class="table table-striped">
+            <thead class="">
+              <tr>
+                <th class="w-25">Date/time</th>
+                <th class="w-25">Activity Type</th>
+                <th class="w-25">Sender</th>
+                <th><button class="btn ml-2" v-on:click="activityFeed"><i class="fas fa-redo text-primary"></i></button></th>
+              </tr>
+            </thead>
+            <tr v-for="(item, idx) in eventsList">
+              <td class="w-25">|| item.timestamp ||</td>
+              <td class="w-25">|| item.event ||</td>
+              <td class="w-25"><span data-toggle="tooltip" v-bind:title="item.description" data-placement="right">|| item.sender ||</span></td>
+              <td><span id="inspectTrigger" class="btn" v-on:click="inspectEvent(idx)" data-toggle="modal" data-target="#inspectionWindow"><i class="fas fa-search-plus text-secondary"></i></span></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="modal" id="inspectionWindow" tabindex="-1" role="dialog" aria-labelledby="inspectTitle" aria-hidden="true" v-if="showEvent">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="inspectTitle">Inspect Activity</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body" v-if="reportMsg">
+                || reportedAddr || reported to CrowdMed admin.
+              </div>
+              <div class="modal-body" v-else>
+                <h6>Activity Details</h6>
+                Date/Time: ||showEvent.timestamp||<br>
+                Activity: ||showEvent.event||<br>
+                <hr>
+                <h6>Sender Details</h6>
+                Identifier: ||showEvent.sender||<br>
+                Description: ||showEvent.description||<br>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" v-on:click="reportUser(showEvent.sender)" v-if="reportMsg == false">Report</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        
+      <!-- Permission Settings -->
+      <div v-if="viewmode == 1">
+        <button v-on:click="switchView(0)" class="btn btn-light mt-4"><i class="fas fa-home mr-2"></i>Home</button>
+        <div class="container my-3">
+          <h1 class="display-5">|| viewTitle ||</h1>
+        </div>
+        
+        <!-- Permission Groups -->
+        <div v-if="createGroupView == false" class="container">
+          <div v-for="group, idx in permissionGroups">
+            <h5>
+              Group || idx + 1 ||
+              <button v-on:click="createGroupView = true; initSelect(); editSettings = true; focusGroup = idx + 1;" class="btn btn-outline-primary btn-sm mx-5 ml-2">Edit</button>
+              <a v-bind:href="group" target="_blank"><button class="btn btn-outline-primary btn-sm mx-5 ml-1">Preview</button></a>
+            </h5>
+          </div>
+          <div>
+            <h5>
+              Research access group
+              <button v-on:click="createGroupView = true; initSelect(); researcher = true;" class="btn btn-outline-primary btn-sm mx-5 ml-2">Edit</button>
+              <a v-bind:href="researchStr" target="_blank" v-if="noResearch"><button class="btn btn-outline-primary btn-sm mx-5 ml-1">Preview</button></a>
+            </h5>
+          </div>
+          <div class="inline mt-4">
+            <button v-on:click="createGroupView = true; initSelect();" class="btn btn-primary mr-2">New Group</button>
+          </div>
+        </div>
+        <div v-else class="container">
+          <h5>Create New Group</h5>
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th class="w-25">Creator</th>
+                <th class="w-25">Records</th>
+                <th class="w-50">Selected fields <small>(Hold Ctrl/Cmd to select)</small></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(value, key) in emrList">
+                <td class="w-25 creator">|| key ||</td>
+                <td class="w-25">
+                  <table class="table table-borderless table-sm">
+                    <tr v-for="(rec, idx) in value.record">
+                      <td>Record || idx + 1 ||</td>
+                      <td><a v-bind:href="rec.url" target="_blank"><i class="fas fa-search-plus text-secondary"></i></a></td>
+                      <td><input class="form-control" type="checkbox" v-model="selectedRecords[key][idx]"></td>
+                    </tr>
+                  </table>
+                </td>
+                <td class="w-50">
+                  <label for="admInfo">Admission Information</label>
+                  <select id="admInfo" class="form-control" v-model="value.selectedFields.AdmissionInfo" multiple>
+                    <option v-for="field in value.fieldList.AdmissionInfo" v-bind:value="field">|| field ||</option>
+                  </select>
+                  <label for="patInfo">Patient Information</label>
+                  <select id="patInfo" class="form-control" v-model="value.selectedFields.PatientInfo" multiple>
+                    <option v-for="field in value.fieldList.PatientInfo" v-bind:value="field">|| field ||</option>
+                  </select>
+                  <label for="prescrip">Prescriptions</label>
+                  <select id="prescrip" class="form-control" v-model="value.selectedFields.Prescriptions" multiple>
+                    <option v-for="field in value.fieldList.Prescriptions" v-bind:value="field">|| field ||</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <form>
+            <div class="form-row" v-for="field in customFields">
+              <div class="form-group col-md-4" >
+                <label for="field-label">Field Label</label>
+                <input id="field-label" type="text" v-model="field.label" class="form-control">
+              </div>
+              <div class="form-group col-md-8">
+                <label for="field-content">Field Content</label>
+                <input id="field-content" type="text" v-model="field.content" class="form-control">
+              </div>
+            </div>
+          </form>
+          <div v-on:click="addField" class="mb-4" style="cursor:pointer"><i class="far fa-plus-square mr-4"></i>Add custom fields</div>
+          <button v-on:click="previewGroup" class="btn btn-primary">Preview</button>
+          <button v-on:click="createGroup" class="btn btn-primary">Create Group</button>
+          <button v-on:click="resetVariables" class="btn btn-primary">Cancel</button>
+        </div>
+      </div>
+
+        <!-- Authorized viewers -->
+      <div v-if="viewmode == 4">
+        <button v-on:click="switchView(0)" class="btn btn-light mt-4"><i class="fas fa-home mr-2"></i>Home</button>
+        <div class="container my-3">
+          <h1 class="display-5">|| viewTitle ||</h1>
+        </div>
+        <!-- Existing Users -->
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th>Viewer</th>
+              <th>Group</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(user, uid) in authUsers">
+              <td>|| user.identifier ||</td>
+              <td v-if="editGroup[uid]">
+                <select v-model="newGroup">
+                  <option disabled value="">Please select one</option>
+                  <option v-for="i in numGroups">|| i ||</option>
+                </select>
+                <button class="btn btn-link" v-on:click="updateGroup(uid)">Submit</button>
+              </td>
+              <td v-else>
+                || user.accessGroup ||
+                <button class="btn btn-link" v-on:click="changeTruth(0, uid)">Edit</button>
+              </td>
+              <td v-if="editStatus[uid]">
+                || PPRstatusMap[user.currStatus] ||
+                <select v-model="newStatus">
+                  <option disabled value="">Please select one</option>
+                  <option v-for="stat in PPRstatusMap">|| stat ||</option>
+                </select>
+                <button class="btn btn-link" v-on:click="updateStatus(uid)">Submit</button>
+              </td>
+              <td v-else>
+                || PPRstatusMap[user.currStatus] ||
+                <button class="btn btn-link" v-on:click="changeTruth(1, uid)">Edit</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn btn-primary" v-on:click="newUser = true;">New Viewer</button>
+        <!-- New user -->
+        <div class="mt-4" v-if="newUser">
+          <form class="form-inline ml-0" name="search" v-on:submit.prevent="search(); getNumGroups()">
+            <div class="form-group mr-3 mb-2">
+              <input type="text" v-model="query" placeholder="Viewer's identifier" class="form-control">
+            </div>
+          <input type="submit" value="Search" class="btn btn-outline-primary mb-2">
+          </form>
+
+          <div v-if="submitSuccess">
+            New viewer authorized.
+          </div>
+          <div class="card" v-if="searchSuccess">
+            <div class="card-body">
+              <h5 class="card-title">|| query || (Type: || roleMap[searchResult[2]] ||)</h5>
+              <h6 class="card-subtitle mb-2 text-muted">|| searchResult[1] ||</h6>
+              <p class="card-text">Ethereum Address: || searchResult[0] ||</p>
+              <label for="groupSelector">Permission Group</label>
+              <select class="form-control mb-3" v-model="groupIn" id="groupSelector">
+                <option v-for="i in numGroups">|| i ||</option>
+              </select>
+              <button  class="btn btn-outline-primary" v-on:click="createPPR">Authorize user</button>
+              <button class="btn btn-outline-primary" v-on:click="newUser = false;">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Records -->
+      <div v-if="viewmode == 2">
+        <button v-on:click="switchView(0)" class="btn btn-light mt-4"><i class="fas fa-home mr-2"></i>Home</button>
+        <div class="container my-3">
+          <h1 class="display-5">|| viewTitle ||</h1>
+        </div>
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th>Creator</th>
+              <th>Item</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(value, key) in emrList">
+              <td>|| value.record[0]['sender'] ||</td>
+              <td>
+                <table class="table table-borderless table-sm">
+                  <tr v-for="(rec, idx) in value.record">
+                    <td><a v-bind:href="rec.url" target="_blank">Record ||idx + 1||</a></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+        <!-- Local Data -->
+        <div v-if="viewmode == 3">
+          <button v-on:click="switchView(0)">Home</button>
+        </div>
+
+        <!-- Tags -->
+        <div v-if="viewmode == 5">
+          <button v-on:click="switchView(0)" class="btn btn-light mt-4"><i class="fas fa-home mr-2"></i>Home</button>
+          <div class="container my-3">
+            <h1 class="display-5">|| viewTitle ||</h1>
+          </div>
+          <div class="container my-3">
+            <h4>Your tags</h4>
+            <p v-if="tags.length == 0">You have not added any tags. Add tags for researchers to find you.</p>
+            <table class="table" v-else>
+              <thead class="thead-light">
+                <tr>
+                  <th>Tag type</th>
+                  <th>Tag</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="tag in tags">
+                  <td>|| tag.type ||</td>
+                  <td>|| tag.value ||</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="container my-3">
+            <h4>Pending tags</h4>
+            <p v-if="pendingTags.length == 0">You have no pending tags.</p>
+            <table class="table" v-else>
+              <thead class="thead-light">
+                <tr>
+                  <th>Tag type</th>
+                  <th>Tag</th>
+                  <th>Suggested by</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(tag, idx) in pendingTags">
+                  <td>|| tag.tagType ||</td>
+                  <td>|| tag.tagValue ||</td>
+                  <td>|| tag.sender ||</td>
+                  <td><button v-on:click="submitTag(idx)" class="btn btn-primary">Approve</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="container my-3">
+            <h4>Add a tag</h4>
+            <form class="form-inline row ml-0" v-on:submit.prevent="">
+              <select class="form-control col-2" v-model="tagType">
+                <option>DOB</option>
+                <option>Gender</option>
+                <option>Diagnosis</option>
+              </select>
+              <input class="form-control" type="text" v-model="tagValue" placeholder="Tag">
+              <button class="btn btn-outline-primary ml-3" v-on:click="submitTag(-1)">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/js/vue.js"></script>
+      
+      <script src="Summary.json"></script>
+      <script src="Search.json"></script>
+    
+      <script src="/js/web3.min.js"></script>
+
+      <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+      <script src="/js/patient.js"></script>
+  </body>
+</html>

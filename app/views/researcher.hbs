@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>CrowdMed</title>
+  </head>
+  <body class="h-100 bg-light">
+    <nav class="navbar navbar-dark sticky-top" style="background-color: #003166;">
+      <a class="navbar-brand ml-5">CrowdMed</a>
+      <div class="navbar-item">
+        <span class="navbar-text mr-5">
+          Logged in as <span id="userID">{{ username }}</span>
+        </span>
+        <a href="/logout"><button class="btn btn-outline-light mr-2">Logout</button></a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div id="main-content">
+        <h1 class="display-4 my-3">Find a patient</h1>
+        <form class="form-inline" v-on:submit.prevent="">
+          <select v-model="tagType" class="form-control">
+            <option>DOB</option>
+            <option>Gender</option>
+            <option>Diagnosis</option>
+          </select>
+          <input type="text" v-model="tagValue" class="form-control ml-2">
+          <button v-on:click="searchTag" class="btn btn-primary ml-4">Search</button>
+        </form>
+
+        <div v-if="searchResult">
+          <div v-for="(patient, idx) in searchResult" class="card mt-4">
+            <div class="card-body">
+              <h5 class="card-title">|| patient.identifier ||</h5>
+              <button v-on:click="retrieveData(idx)" class="btn btn-outline-primary">Retrieve data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="Summary.json"></script>
+    <script src="Search.json"></script>
+    <script src="/js/vue.js"></script>
+    <!-- Web3.js will help us interact with the deployed smart contract -->
+    <script src="/js/web3.min.js"></script>
+    <!-- Truffle contract  will our life easier when interacting with smart contracts -->
+    <!-- <script src="/js/truffle-contract.js"></script> -->
+    <!-- app.js is where we will write our JS logic -->
+    <script src="/js/researcher.js"></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </body>
+</html>

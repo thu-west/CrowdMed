@@ -1,0 +1,36 @@
+Experiment set up notes
+
+Users:
+1 CA
+500 patients
+10 doctors
+(total 511 nodes)
+
+Operations:
+
+1. Register all users.
+2. a. trial: Create Doctor0 PPR.
+		trial2: None.
+	b. Doctor0 enters 10 records for each patient.
+3. For (idx = 1; idx < 10; idx++):
+	a. Create Doctor_idx PPR. 
+	b. Trial: Authorize Doctor_idx to Doctor_idx[1:idx] to data.
+   		trial2: Authorize Doctor_idx to data
+   	c. Doctor_idx requests data.
+	d. Doctor_idx enters 10 records for each patient.
+
+expt_base: PPR-centric structure
+	DB size: 22515808 bytes
+	# transactions: 64509
+
+expt_1: PVR-centric structure
+	DB size: 27832904 bytes
+	# transactions: 64010
+
+expt_base_mem: PPR-centric structure w/ group-based access
+	DB size: 22766592 bytes
+	# transactions: 69510
+
+expt_1_mem: PVR-centric structure w/ group-based access
+	DB size: 27568624 bytes
+	# transactions: 64510

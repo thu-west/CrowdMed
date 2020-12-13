@@ -1,0 +1,24 @@
+1. Initialize geth:
+geth --datadir ./chaindata init genesis.json
+
+2. Create new accounts:
+./createAccounts.sh
+
+3. Get list of accounts and update genesis.json to pre-allocate 100 ether
+geth account list --datadir ./chaindata > accountlist.txt
+python3 accounts.py
+
+3a. Copy allocitem.txt to genesis.json
+
+4. Remove ./chaindata/geth and re-initialize geth
+rm -rf ./chaindata/geth
+geth --datadir ./chaindata init genesis.json
+
+4. Start the chain
+
+geth --port 3000 --networkid 58343 --nodiscover --datadir=./chaindata --maxpeers=0 --rpc --rpcport 8543 --rpcaddr 127.0.0.1 --rpccorsdomain "*" --rpcapi "eth,net,web3,personal,miner" --allow-insecure-unlock --unlock "0" --password "123"
+
+5. Start the miner
+
+geth attach http://127.0.0.1:8543
+miner.start() // sends all ether to accounts[0]

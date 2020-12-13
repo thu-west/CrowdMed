@@ -1,0 +1,63 @@
+<!-- Landing page; login portal -->
+
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>CrowdMed</title>
+  </head>
+  <body class="h-100 bg-light">
+    <div class="row h-100 justify-content-center align-items-center">
+      <div id="main-content" class="col-10 col-md-8 col-lg-6 shadow-sm p-4 mb-4 bg-white">
+        <form method="post" v-on:submit.prevent="submitForm">
+          <div class="text-center mb-4">
+            <h1>CrowdMed</h1>
+          </div>
+          <div class="form-group">
+            <label for="usernameField">Username</label>
+            <input id="usernameField" type="text" v-model="username" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label for="passwordField">Password</label>
+            <input id="passwordField" type="password" v-model="password" class="form-control password" required/>
+          </div>
+          <div style="display: inline-block;">
+            <input type="submit" class="btn btn-outline-primary" value="Log in">
+            <small :style="{visibility: loginErr ? 'visible' : 'hidden'}" class="text-danger" style="margin-top: 10px;">Wrong username/password.</p>
+          </div>
+        </form>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="/js/vue.js"></script>
+        <script>
+          var vueApp = new Vue({
+            el: '#main-content',
+            data: {
+              loginErr: false,
+              username: '',
+              password: '',
+            },
+            methods: {
+              submitForm: function() {
+                axios.post("http://localhost:8888/login", {
+                  username_: this.username,
+                  password_: this.password
+                })
+                .then(response => {
+                  if (response.data.msg == 1) {
+                    this.loginErr = true;
+                  } else {
+                    window.location.replace("http://localhost:8888");
+                  }
+                })
+              }
+            }
+          })
+        </script>
+      <!-- </div>
+    </div> -->
+  </body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>CrowdMed</title>
+  </head>
+  <body class="h-100 bg-light">
+    <nav class="navbar navbar-dark sticky-top" style="background-color: #003166;">
+      <a class="navbar-brand ml-5">CrowdMed</a>
+      <div class="navbar-item">
+        <span class="navbar-text mr-5">
+          Logged in as <span id="userID">{{ username }}</span>
+        </span>
+        <a href="/logout"><button class="btn btn-outline-light mr-2">Logout</button></a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div id="main-content">
+        <h1 class="display-4 my-3">Find a patient</h1>
+        <form v-on:submit.prevent="search" class="form-inline ml-0">
+          <div class="form-group mr-3 mb-2">
+            <input type="text" v-model="query" placeholder="Patient's identifier" class="form-control">
+          </div>
+          <input type="submit" value="Search" class="btn btn-outline-primary mb-2">
+        </form>
+        <div v-if="searchSuccess" class="card">
+          <div class="card-body">
+            <h5 class="card-title">|| searchResult.identifier || (Type: || roleMap[searchResult[2]] ||)</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Ethereum Address: || searchResult[0] ||</h6>
+            <div class="card">
+              <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                  <li class="nav-item mr-1">
+                    <a v-on:click="switchView(0)" class="nav-link" v-bind:class="{ active: viewMode[0] }" href="#">Create record</a>
+                  </li>
+                  <li class="nav-item mr-1">
+                    <a v-on:click="switchView(1)" class="nav-link" v-bind:class="{ active: viewMode[1] }" href="#">Retrieve data</a>
+                  </li>
+                  <li class="nav-item mr-1">
+                    <a v-on:click="switchView(2)" class="nav-link" v-bind:class="{ active: viewMode[2] }" href="#">Request access</a>
+                  </li>
+                  <li class="nav-item mr-1">
+                    <a v-on:click="switchView(3)" class="nav-link" v-bind:class="{ active: viewMode[3] }" href="#">Create tag</a>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="card-body">
+                <!-- Request access -->
+                <div v-if="viewMode[1]">
+                  <button v-on:click="retrieveData" class="btn btn-primary">Retrieve data</button>
+                  <p v-if="retrieveErr" class="card-text">Access request pending approval.</p>
+                </div>
+                <!-- Create record -->
+                <div v-if="viewMode[0]">
+                  <form v-on:submit.prevent="getData" class="form-inline" v-if="submitSuccess == false">
+                    <div class="form-group mr-3 mb-2">
+                      <input type="text" v-model="recordText" class="form-control">
+                    </div>
+                    <input type="submit" value="Preview" class="btn btn-outline-primary mb-2">
+                  </form>
+                  <div v-if="dataPreview">
+                    <emr-component v-bind:emr="emr.retObj"></emr-component>
+                    <button v-on:click="createRecord" class="btn btn-primary">Submit</button>
+                    <button v-on:click="resetForm" class="btn btn-primary">Cancel</button>
+                  </div>
+                  <div v-if="submitSuccess">
+                    New record successfully created for || searchResult.identifier ||.<br>
+                    <button class="btn btn-outline-primary" v-on:click="resetForm">Done</button>
+                  </div>
+
+                </div>
+                <div v-if="viewMode[2]">
+                  <button v-on:click="requestAccess" class="btn btn-primary">Send access request</button>
+                </div>
+                <!-- Create tag -->
+                <div v-if="viewMode[3]">
+                  <select v-model="tagType">
+                    <option>DOB</option>
+                    <option>Gender</option>
+                    <option>Diagnosis</option>
+                  </select>
+                  <input type="text" v-model="tagValue">
+                  <button v-on:click="sendTag">Create tag</button>
+                </div>
+              </div>  
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script src="Summary.json"></script>
+    <script src="/js/vue.js"></script>
+    <!-- Web3.js will help us interact with the deployed smart contract -->
+    <script src="/js/web3.min.js"></script>
+    <!-- Truffle contract  will our life easier when interacting with smart contracts -->
+    <!-- <script src="/js/truffle-contract.js"></script> -->
+    <!-- app.js is where we will write our JS logic -->
+    <script src="/js/doctor.js"></script>
+    <script src="/js/emrComponent.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  </body>
+</html>
